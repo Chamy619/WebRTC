@@ -1,17 +1,31 @@
 <html>
-  <head>
+
+<head>
     <meta charset="utf-8" />
     <title>WebRtc tutorial</title>
-  </head>
+    <link rel="stylesheet" href="./style.css">
 
-  <body>
+</head>
+
+<body>
     <div>
-      <video id="localVideo" autoplay width="480px"></video>
-      <video id="remoteVideo" width="480px" autoplay></video>
+        <video id="localVideo" autoplay width="480px"></video>
+        <video id="remoteVideo" width="480px" autoplay></video>
     </div>
 
+    <div class="chatting">
+        <p>Chatting</p>
+        <ul id="messages"></ul>
+        <div class="sendMessage">
+            <form id="chatForm">
+                <input id="msgInput" type="text">
+                <button type="button" id="sendButton">SEND</button>
+            </form>
+        </div>
+    </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
-    <script src="./rtc.js"></script>
-  </body>
+    <script src="./rtc.js?ver=7"></script>
+</body>
+
 </html>

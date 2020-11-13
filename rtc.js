@@ -2,6 +2,7 @@
 
 let localVideo = document.getElementById("localVideo");
 let remoteVideo = document.getElementById("remoteVideo");
+let sendButton = document.getElementById("sendButton");
 let isInitiator = false;
 let isChannelReady = false;
 let isStarted = false;
@@ -10,69 +11,75 @@ let remoteStream;
 let pc;
 
 let pcConfig = {
-  iceServers: [
-    {
-      urls: "stun:stun.l.google.com:19302",
-    },
-  ],
-};
+    'iceServers': [{
+        'urls': 'stun:stun.l.google.com:19302'
+      }]
+}
 
-let room = "foo";
+let room = 'foo';
 
 let socket = io.connect();
 
-if (room !== "") {
-  socket.emit("create or join", room);
-  console.log("Attempted to create or join Room", room);
+if(room !==''){
+  socket.emit('create or join',room);
+  console.log('Attempted to create or join Room',room);
 }
 
-socket.on("created", (room, id) => {
-  console.log("Created room" + room + "socket ID : " + id);
-  isInitiator = true;
+socket.on('chatting', (msg)=> {
+  console.log('chatting on');
+  var messages = document.getElementById("messages");
+  var li = document.createElement('li');
+  messages.appendChild(li).appendChild(document.createTextNode(msg.message));
+  console.log("success");
 });
 
-socket.on("full", (room) => {
-  console.log("Room " + room + "is full");
+socket.on('created', (room,id)=>{
+  console.log('Created room' + room+'socket ID : '+id);
+  isInitiator= true;
+})
+
+socket.on('full', room=>{
+  console.log('Room '+room+'is full');
 });
 
-socket.on("join", (room) => {
-  console.log("Another peer made a request to join room" + room);
-  console.log("This peer is the initiator of room" + room + "!");
+socket.on('join',room=>{
+  console.log('Another peer made a request to join room' + room);
+  console.log('This peer is the initiator of room' + room + '!');
   isChannelReady = true;
+})
+
+socket.on('joined',room=>{
+  console.log('joined : '+ room );
+  isChannelReady= true;
+})
+socket.on('log', array=>{
+  console.log.apply(console,array);
 });
 
-socket.on("joined", (room) => {
-  console.log("joined : " + room);
-  isChannelReady = true;
-});
-socket.on("log", (array) => {
-  console.log.apply(console, array);
-});
-
-socket.on("message", (message) => {
-  console.log("Client received message :", message);
-  if (message === "got user media") {
+socket.on('message', (message)=>{
+  console.log('Client received message :',message);
+  if(message === 'got user media'){
     maybeStart();
-  } else if (message.type === "offer") {
-    if (!isInitiator && !isStarted) {
+  }else if(message.type === 'offer'){
+    if(!isInitiator && !isStarted){
       maybeStart();
     }
     pc.setRemoteDescription(new RTCSessionDescription(message));
     doAnswer();
-  } else if (message.type === "answer" && isStarted) {
+  }else if(message.type ==='answer' && isStarted){
     pc.setRemoteDescription(new RTCSessionDescription(message));
-  } else if (message.type === "candidate" && isStarted) {
+  }else if(message.type ==='candidate' &&isStarted){
     const candidate = new RTCIceCandidate({
-      sdpMLineIndex: message.label,
-      candidate: message.candidate,
+      sdpMLineIndex : message.label,
+      candidate:message.candidate
     });
 
     pc.addIceCandidate(candidate);
   }
-});
-function sendMessage(message) {
-  console.log("Client sending message: ", message);
-  socket.emit("message", message);
+})
+function sendMessage(message){
+  console.log('Client sending message: ',message);
+  socket.emit('message',message);
 }
 
 navigator.mediaDevices
@@ -140,8 +147,8 @@ function maybeStart() {
     if (isInitiator) {
       doCall();
     }
-  } else {
-    console.error("maybeStart not Started!");
+  }else{
+    console.error('maybeStart not Started!');
   }
 }
 
@@ -166,3 +173,9 @@ function setLocalAndSendMessage(sessionDescription) {
 function onCreateSessionDescriptionError(error) {
   console.error("Falied to create session Description", error);
 }
+
+sendButton.addEventListener('click', function() {
+    var msg = document.getElementById("msgInput").value;
+    socket.emit('chatting', {message:msg});
+});
+

@@ -33,21 +33,20 @@ function createConnection() {
   sendChannel.onopen = onSendChannelStateChange;
   sendChannel.onclose = onSendChannelStateChange;
 
-  window.remoteConnection = remoteConnection = new RTCPeerConnection(
-    servers,
-    pcConstraint
-  );
+  window.remoteConnection = remoteConnection
+  = new RTCPeerConnection(servers,pcConstraint);
 
   remoteConnection.onicecandidate = iceCallback2;
   remoteConnection.ondatachannel = receiveChannelCallback;
 
-  localConnection
-    .createOffer()
-    .then(gotDescription1, onCreateSessionDescriptionError);
+  localConnection.createOffer().then(
+      gotDescription1,
+      onCreateSessionDescriptionError
+  );
 }
 
 function iceCallback1(event) {
-  console.log("local ice callback");
+    console.log('local ice callback')
   if (event.candidate) {
     remoteConnection
       .addIceCandidate(event.candidate)
@@ -73,43 +72,45 @@ function onAddIceCandidateError(error) {
 
 function onSendChannelStateChange() {
   var readyState = sendChannel.readyState;
-  //   /trace("Send channel state is: " + readyState);
+//   /trace("Send channel state is: " + readyState);
   if (readyState === "open") {
-    console.log("opened");
+      console.log('opened');
   } else {
-    console.log("closed");
-  }
+    console.log('closed');
+}
 }
 
-function receiveChannelCallback(event) {
-  receiveChannel = event.channel;
-  receiveChannel.onmessage = onReceiveMessageCallback;
+function receiveChannelCallback(event){
+    receiveChannel = event.channel;
+    receiveChannel.onmessage = onReceiveMessageCallback;
 }
 
-function onReceiveMessageCallback(event) {
-  dataChannelReceive.value = event.data;
+function onReceiveMessageCallback(event){
+    dataChannelReceive.value = event.data;
 }
 
-function gotDescription1(desc) {
-  console.log(desc);
-  localConnection.setLocalDescription(desc);
-  remoteConnection.setRemoteDescription(desc);
-  remoteConnection
-    .createAnswer()
-    .then(gotDescription2, onCreateSessionDescriptionError);
+function gotDescription1(desc){
+    console.log(desc);
+    localConnection.setLocalDescription(desc);
+    remoteConnection.setRemoteDescription(desc);
+    remoteConnection.createAnswer().then(
+        gotDescription2,
+        onCreateSessionDescriptionError
+    );
 }
 
-function gotDescription2(desc) {
-  remoteConnection.setLocalDescription(desc);
-  localConnection.setRemoteDescription(desc);
+function gotDescription2(desc){
+    remoteConnection.setLocalDescription(desc);
+    localConnection.setRemoteDescription(desc);
 }
 
-function sendData() {
-  let data = dataChannelSend.value;
-  console.log("btn Data : ", data);
-  sendChannel.send(data);
+function sendData(){
+    let data = dataChannelSend.value;
+    console.log('btn Data : ',data);
+    sendChannel.send(data);
 }
+
 
 function onCreateSessionDescriptionError(error) {
-  console.error("Failed to create session description: " + error.toString());
-}
+    console.error('Failed to create session description: ' + error.toString());
+  }
